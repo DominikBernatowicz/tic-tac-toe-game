@@ -1,25 +1,35 @@
 package com.kodilla.ticTacToe;
 
 import javafx.application.Application;
-import javafx.scene.Parent;
+import javafx.application.Platform;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Random;
 
 public class TicTacToe extends Application {
 
-    private double XorY = 500;      //długość
+    private final Image imageback = new Image("file:src/main/resources/plansza.png");   //plansza
+//    private final Image x = new Image("file:src/main/resources/x.png");
+//    private final Image o = new Image("file:src/main/resources/o.png");
+    private final GridPane grid = new GridPane();
+    private final String[][] valueOfButtons = new String[3][3];
+    private final String[] pola = new String[10];
+    private final Random generator = new Random();
     private boolean isTurnX = true;
-    private int matrixSize = 3;
-    private Image imageback = new Image("file:src/main/resources/plansza.png");   //plansza
-    private Image x = new Image("file:src/main/resources/X.png");   //X
-    private Image o = new Image("file:src/main/resources/O.png");   //O
-    private Button button[][] = new Button[3][3];
-    private String combo[][] = new String[3][3];
-    private GridPane grid = new GridPane();
+    private boolean yourTurn = true; // kolejka na początek gry
+    private String wybierzXczyO = "";
+    private int a = 0;
+    private int a1 = 0;
 
     public static void main(String[] args) {
         launch(args);
@@ -28,135 +38,234 @@ public class TicTacToe extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-            /*for (int i = 0; i < 3; i++) {
-                for (int j = 0; j < 3; j++) {
-
-                    Button button = new Button();
-                    button.setMinSize(135, 135);
-
-                    //button.setStyle("-fx-background-color:transparent;-fx-padding:0;-fx-background-size:0;");
-
-                    //zapisywanie w pamięci X/O
-                    if (isTurnX){
-                        combo[i][j] = "X";
-                    } else {
-                        combo[i][j] = "O";
-                    }
-
-                    button.setOnMouseClicked(event -> {
-                        if (isTurnX) {
-                            //button.setGraphic(new ImageView(x));
-                            button.setText("X");
-                            button.setFont(Font.font(70));
-
-                        } else {
-                            //button.setGraphic(new ImageView(o));
-                            button.setText("O");
-                            button.setFont(Font.font(70));
-
-                        }
-                        isTurnX = !isTurnX;
-
-                    });
-                    grid.add(button, i, j);
-
-
-                }
-            }*/
-
-
-        primaryStage.setTitle("Tic-Tac-Toe");
-        primaryStage.setScene(new Scene(createInside()));
-        primaryStage.show();
-
-    }
-
-    public Parent createInside() {
         BackgroundSize backgroundSize = new BackgroundSize(100, 100, true, true, true, false);
         BackgroundImage backgroundImage = new BackgroundImage(imageback, BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT, backgroundSize);
         Background background = new Background(backgroundImage);
         grid.setBackground(background);
         grid.setPrefSize(450, 450);
 
+        startApp();
 
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                CreateField field = new CreateField();
-                field.setTranslateX(i *  150);
-                field.setTranslateY(j * 150);
-                grid.getChildren().add(field);
 
-                String lol = field.ValueOfButton(); //zmienić nazwę zmiennej
-                combo[i][j] = lol;
-                //dodać klasę checkWinner
-            }
-        }
-        return grid;
+        Scene scene = new Scene(grid, 450, 500);
+
+        primaryStage.setTitle("Tic-Tac-Toe");
+        primaryStage.setScene(scene);
+        primaryStage.show();
     }
 
-    private class CreateField extends StackPane {
+    public void sprawdzenieWygranej(int finalI, int finalJ) {
 
-        Button butt = new Button();
+        //wygrane poziome
+        if (valueOfButtons[finalI][0] != null && valueOfButtons[finalI][0].equals(valueOfButtons[finalI][1])
+                && valueOfButtons[finalI][0].equals(valueOfButtons[finalI][2])) {
 
-        public CreateField() {
+            System.out.println("Winner is: " + valueOfButtons[finalI][0] + " player.");
+            Platform.exit(); //zastąpić zatrzymaniem programu
+        }
 
-            butt.setMinSize(150, 150);
-            butt.setStyle("-fx-background-color:transparent;-fx-padding:0;-fx-background-size:0;");
+        //wygrane pionowe
+        else if (valueOfButtons[0][finalJ] != null && valueOfButtons[0][finalJ].equals(valueOfButtons[1][finalJ])
+                && valueOfButtons[0][finalJ].equals(valueOfButtons[2][finalJ])) {
 
-            getChildren().addAll(butt);
+            System.out.println("Winner is: " + valueOfButtons[0][finalJ] + " player.");
+            Platform.exit(); //zastąpić zatrzymaniem programu
+        }
 
-            butt.setOnMouseClicked(event -> {
-                if (isTurnX) {
-                    butt.setText("X");
+        //wygrane skośne
+        else if (valueOfButtons[0][0] != null && valueOfButtons[0][0].equals(valueOfButtons[1][1])
+                && valueOfButtons[0][0].equals(valueOfButtons[2][2])) {
 
+            System.out.println("Winner is: " + valueOfButtons[0][0] + " player.");
+            Platform.exit(); //zastąpić zatrzymaniem programu
+        }
+        else if (valueOfButtons[0][2] != null && valueOfButtons[0][2].equals(valueOfButtons[1][1])
+                && valueOfButtons[0][2].equals(valueOfButtons[2][0])) {
+
+            System.out.println("Winner is: " + valueOfButtons[0][2] + " player.");
+            Platform.exit(); //zastąpić zatrzymaniem programu
+        }
+    }
+
+    public void wyswietl() {
+
+        System.out.println("----New move----");
+        for (int i = 0; i < 3 ; i++) {
+            for (int j = 0; j < 3 ; j++) {
+                if (valueOfButtons[i][j] == null) {
+                    System.out.print("-\t");
                 } else {
-                    butt.setText("O");
-
+                    System.out.print(valueOfButtons[i][j] + "\t");
                 }
-                butt.setFont(Font.font(70));
-                isTurnX = !isTurnX;
-
-            });
-        }
-
-        public String ValueOfButton() {
-            return butt.getText();
+            }
+            System.out.println();
         }
     }
 
-    //zmienić na klasę children
-    public String checkWinner() {
+    public void rozgrywka() {
 
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
+                Button button = new Button();
+                button.setMinSize(150, 150);
+               // button.setStyle("-fx-background-color:transparent;-fx-padding:0;-fx-background-size:0;");
 
-                combo[i][j] = button[i][j].getText();
+
+                int finalJ = i;
+                int finalI = j;
+                button.setOnMouseClicked(event -> {
+                    if (isTurnX) {
+//                        button.setGraphic(new ImageView(x));
+                        button.setText("X");
+                        button.setFont(Font.font(70));
+                        button.setDisable(true);
+
+                        yourTurn = !yourTurn;
+                        valueOfButtons[finalI][finalJ] = "X";
+
+                        wyswietl();
+                    } else {
+//                        button.setGraphic(new ImageView(o));
+                        button.setText("O");
+                        button.setFont(Font.font(70));
+                        button.setDisable(true);
+
+                        yourTurn = !yourTurn;
+                        valueOfButtons[finalI][finalJ] = "O";
+
+                        wyswietl();
+                    }
+                    sprawdzenieWygranej(finalI, finalJ);
+                    isTurnX = !isTurnX;
+
+                });
+                grid.add(button, i, j);
             }
         }
-        String winner = "remis";
+    }
 
+    public void startApp() {
+        grid.setAlignment(Pos.BOTTOM_CENTER);
+
+        Button start = new Button("START");
+        Label label = new Label("\n\n\n\n\n\n  Uwaga zaczyna X!");
+
+        label.setFont(Font.font(22));
+        label.setStyle("-fx-text-fill: FIREBRICK; -fx-font-weight: bold" );
+
+        start.setFont(Font.font(50));
+        start.setOnMouseClicked(event -> {
+            grid.getChildren().clear();
+
+            wybierzXczyO();
+        });
+
+        grid.addRow(1,start);
+        grid.addRow(2, label);
+    }
+
+    public void wybierzXczyO() {
+        grid.setAlignment(Pos.CENTER);
+
+        Button X = new Button("X");
+        Button O = new Button("O");
+
+        X.setFont(Font.font(50));
+        O.setFont(Font.font(50));
+
+        X.setOnMouseClicked(e1 -> {
+            yourTurn = true;
+            wybierzXczyO = "X";
+
+            grid.getChildren().clear();
+            grid.setAlignment(Pos.TOP_CENTER);
+
+            rozgrywka();
+            restartApp();
+            quitApp();
+
+            System.out.println("Good luck!");
+        });
+        O.setOnMouseClicked(e2 -> {
+            yourTurn = false;
+            wybierzXczyO = "O";
+
+            grid.getChildren().clear();
+            grid.setAlignment(Pos.TOP_CENTER);
+
+            rozgrywka();
+            restartApp();
+            quitApp();
+
+            System.out.println("Good luck!");
+        });
+
+        grid.addColumn(0, X);
+        grid.addColumn(1, O);
+    }
+
+    public void restartApp() {
+        Button newGame = new Button("NEW GAME");
+
+        newGame.setMinSize(150,50);
+        newGame.setOnMouseClicked(event -> {
+            grid.getChildren().clear();
+
+            isTurnX = true;
+
+            rozgrywka();
+            restartApp();
+            quitApp();
+
+            System.out.println("You started a new game!");
+        });
+
+        grid.add(newGame,0,3);
+    }
+
+    private void quitApp() {
+        Button quit = new Button("QUIT");
+
+        quit.setMinSize(150, 50);
+        quit.setOnMouseClicked(event -> {
+            Platform.exit();
+
+            System.out.println("Goodbye!");
+        });
+
+        grid.add(quit,2,3);
+    }
+
+    private void computerLogic() {
+
+        int k = 0;
         for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                pola[k] = valueOfButtons[i][j];
 
-            //wygrane poziome
-            if (combo[i][0] == combo[i][1] && combo[i][0] == combo[i][2]) {
-                winner = combo[i][0];
-            }
-
-            //wygrane pionowe
-            else if (combo[0][i] == combo[1][i] && combo[0][i] == combo[2][i]) {
-                winner = combo[0][i];
-            }
-
-            //wygrane skośne
-            else if (combo[0][0] == combo[1][1] && combo[0][0] == combo[2][2]) {
-                winner = combo[0][0];
-            }
-            else if (combo[0][2] == combo[1][1] && combo[0][2] == combo[2][0]) {
-                winner = combo[0][2];
+                k ++;
             }
         }
-        return winner;
+
+        if (yourTurn == false) {
+            if (isTurnX == true) {
+                do {
+                    a = 0;
+                    if (wybierzXczyO != pola[a]) {
+                        a1 = a;
+                    }
+                } while (wybierzXczyO != pola[a]);
+            }
+        } else {
+            if (isTurnX == false) {
+                do {
+                    a = generator.nextInt(10);
+                    if (wybierzXczyO != pola[a]) {
+                        a1 = a;
+                    }
+                } while (wybierzXczyO != pola[a]);
+            }
+        }
+        grid.getChildren().sorted();
     }
 }
-
-//https://www.youtube.com/watch?v=Uj8rPV6JbCE

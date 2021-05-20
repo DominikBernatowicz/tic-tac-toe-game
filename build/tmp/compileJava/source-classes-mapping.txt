@@ -1,3 +1,2 @@
 com/kodilla/ticTacToe/TicTacToe.java
  com.kodilla.ticTacToe.TicTacToe
- com.kodilla.ticTacToe.TicTacToe$CreateField

@@ -14,8 +14,12 @@ import javafx.stage.Stage;
 import java.util.HashSet;
 import java.util.Random;
 
-public class TicTacToe extends Application {
+import static com.kodilla.ticTacToe.Styles.*;
 
+public class TicTacToe extends Application{
+
+    public static final String X = "X";
+    public static final String O = "O";
     private final Image imageback = new Image("file:src/main/resources/plansza.png");   //plansza
     private final GridPane grid = new GridPane();
     private final String[][] valueOfButtons = new String[3][3];
@@ -58,7 +62,7 @@ public class TicTacToe extends Application {
         Label label = new Label("\n\n\n\n\n\n  Uwaga zaczyna X!");
 
         label.setFont(Font.font(22));
-        label.setStyle("-fx-text-fill: FIREBRICK; -fx-font-weight: bold" );
+        label.setStyle( FILL_FIREBRICK + FONT_WEIGHT_BOLD);
 
         start.setFont(Font.font(50));
         start.setOnMouseClicked(event -> {
@@ -74,14 +78,14 @@ public class TicTacToe extends Application {
     public void wybierzXczyO() {
         grid.setAlignment(Pos.CENTER);
 
-        Button X = new Button("X");
-        Button O = new Button("O");
+        Button X = new Button(TicTacToe.X);
+        Button O = new Button(TicTacToe.O);
 
         X.setFont(Font.font(50));
         O.setFont(Font.font(50));
 
         X.setOnMouseClicked(e1 -> {
-            wybierzXczyO = "X";
+            wybierzXczyO = TicTacToe.X;
 
             grid.getChildren().clear();
             grid.setAlignment(Pos.TOP_CENTER);
@@ -93,7 +97,7 @@ public class TicTacToe extends Application {
             System.out.println("Good luck!");
         });
         O.setOnMouseClicked(e2 -> {
-            wybierzXczyO = "O";
+            wybierzXczyO = TicTacToe.O;
 
             grid.getChildren().clear();
             grid.setAlignment(Pos.TOP_CENTER);
@@ -116,50 +120,52 @@ public class TicTacToe extends Application {
                 Button button = new Button();
                 button.setText("");
                 button.setMinSize(150, 150);
-                button.setStyle("-fx-background-color:transparent;-fx-padding:0;-fx-background-size:0;");
+                button.setStyle(BACKGROUND_TRANSPARENT + PADDING_0 + BACKGROUND_SIZE_0);
 
                 buttons[i][j] = button;
 
-
                 buttons[i][j].setOnMouseClicked(event -> {
-                    button.setText(wybierzXczyO);
-                    button.setFont(Font.font(70));
-                    button.setDisable(true);
-                    button.setStyle("-fx-background-color:transparent;-fx-padding:0;-fx-background-size:0; -fx-opacity: 1.0");
+                    System.out.println(endGame);
+                    if (!endGame) {
+                        button.setText(wybierzXczyO);
+                        button.setFont(Font.font(70));
+                        button.setDisable(true);
+                        button.setStyle(BACKGROUND_TRANSPARENT + PADDING_0 + BACKGROUND_SIZE_0 + OPACITY_1_0);
 
-                    for (int i1 = 0; i1 < 3; i1++) {
-                        for (int j1 = 0; j1 < 3; j1++) {
-                            if (buttons[i1][j1].getText().equals(wybierzXczyO)) {
-                                valueOfButtons[j1][i1] = wybierzXczyO;
+                        for (int i1 = 0; i1 < 3; i1++) {
+                            for (int j1 = 0; j1 < 3; j1++) {
+                                if (buttons[i1][j1].getText().equals(wybierzXczyO)) {
+                                    valueOfButtons[j1][i1] = wybierzXczyO;
+                                }
                             }
                         }
-                    }
 
-                    if (wybierzXczyO.equals("X")) {
-                        isTurnX = false;
-                    } else if (wybierzXczyO.equals("O")) {
-                        isTurnX = true;
-                    }
+                        if (wybierzXczyO.equals(X)) {
+                            isTurnX = false;
+                        } else if (wybierzXczyO.equals(O)) {
+                            isTurnX = true;
+                        }
 
-                    wyswietl();
-                    sprawdzenieWygranej();
-                    computerLogic();
+                        wyswietl();
+                        sprawdzenieWygranej();
+                        computerLogic();
+                    }
                 });
 
                 grid.add(buttons[i][j], i, j);
             }
         }
-        if (wybierzXczyO.equals("O") && isTurnX) {
+        if (wybierzXczyO.equals(O) && isTurnX) {
 
             randomRow = generator.nextInt(3);
             randomColumn = generator.nextInt(3);
 
-            buttons[randomRow][randomColumn].setText("X");
+            buttons[randomRow][randomColumn].setText(X);
             buttons[randomRow][randomColumn].setFont(Font.font(70));
             buttons[randomRow][randomColumn].setDisable(true);
-            buttons[randomRow][randomColumn].setStyle("-fx-background-color:transparent;-fx-padding:0;-fx-background-size:0; -fx-opacity: 1.0");
+            buttons[randomRow][randomColumn].setStyle(BACKGROUND_TRANSPARENT + PADDING_0 + BACKGROUND_SIZE_0 + OPACITY_1_0);
 
-            valueOfButtons[randomColumn][randomRow] = "X";
+            valueOfButtons[randomColumn][randomRow] = X;
 
             wyswietl();
 
@@ -173,15 +179,15 @@ public class TicTacToe extends Application {
             randomRow = generator.nextInt(3);
             randomColumn = generator.nextInt(3);
 
-            if (wybierzXczyO.equals("X")) {
+            if (wybierzXczyO.equals(X)) {
                 while (checkedPlaces.size() != 9 && !isTurnX) {
                     if (buttons[randomRow][randomColumn].getText().equals("")) {
-                        buttons[randomRow][randomColumn].setText("O");
+                        buttons[randomRow][randomColumn].setText(O);
                         buttons[randomRow][randomColumn].setFont(Font.font(70));
                         buttons[randomRow][randomColumn].setDisable(true);
-                        buttons[randomRow][randomColumn].setStyle("-fx-background-color:transparent;-fx-padding:0;-fx-background-size:0; -fx-opacity: 1.0");
+                        buttons[randomRow][randomColumn].setStyle(BACKGROUND_TRANSPARENT + PADDING_0 + BACKGROUND_SIZE_0 + OPACITY_1_0);
 
-                        valueOfButtons[randomColumn][randomRow] = "O";
+                        valueOfButtons[randomColumn][randomRow] = O;
                         wyswietl();
                         sprawdzenieWygranej();
 
@@ -194,15 +200,15 @@ public class TicTacToe extends Application {
                         randomColumn = generator.nextInt(3);
                     }
                 }
-            } else if (wybierzXczyO.equals("O")) {
+            } else if (wybierzXczyO.equals(O)) {
                 while (checkedPlaces.size() != 9 && isTurnX) {
                     if (buttons[randomRow][randomColumn].getText().equals("")) {
-                        buttons[randomRow][randomColumn].setText("X");
+                        buttons[randomRow][randomColumn].setText(X);
                         buttons[randomRow][randomColumn].setFont(Font.font(70));
                         buttons[randomRow][randomColumn].setDisable(true);
-                        buttons[randomRow][randomColumn].setStyle("-fx-background-color:transparent;-fx-padding:0;-fx-background-size:0; -fx-opacity: 1.0");
+                        buttons[randomRow][randomColumn].setStyle(BACKGROUND_TRANSPARENT + PADDING_0 + BACKGROUND_SIZE_0 + OPACITY_1_0);
 
-                        valueOfButtons[randomColumn][randomRow] = "X";
+                        valueOfButtons[randomColumn][randomRow] = X;
                         wyswietl();
                         sprawdzenieWygranej();
 
